@@ -1,53 +1,69 @@
-import {Alert, Button, StyleSheet, Text, View} from 'react-native';
-import dayjs from 'dayjs';
-import {useEffect, useState} from "react";
+import {Alert, SafeAreaView, StyleSheet, Text, View} from 'react-native';
+import React, {useEffect, useState} from "react";
+import CarList from "./components/CarList";
 
 export default function App() {
-  const [numberDictionary, setNumberDictionary] = useState({});
-  const [time, setTime] = useState(dayjs().format("HH:mm:ss"));
+    const [time, setTime] = useState(new Date());
 
-  useEffect(() => {
-    const interval = setInterval(()=>{
-      setTime(dayjs().format("HH:mm:ss"));
-    }, 1000);
 
-    return () => clearInterval(interval);
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setTime(new Date());
+        }, 1000);
 
-  }, []);
+        return () => clearInterval(interval);
 
-  const showPrompt = () => {
-    Alert.prompt('Enter a number', `Time: ${time}`, (inputValue) => {
-      const newNumber = parseInt(inputValue);
-      console.log(newNumber, inputValue);
+    }, []);
 
-      if (!isNaN(newNumber)) {
-        // const time = new Date().toLocaleString();
-        setNumberDictionary({
-          ...numberDictionary,
-          [newNumber]: time,
-        });
-
-      } else {
-        // Show an error message or handle invalid input
-        Alert.alert('Invalid Input', 'Please enter a valid number');
-      }
+    const formattedTime = time.toLocaleTimeString([], {
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
     });
-  };
 
-  return (
-    <View style={styles.container}>
-      <Text>{time}</Text>
-      <Button title="StopWatch" onPress={showPrompt}/>
-      <Text>{JSON.stringify(numberDictionary)}</Text>
-    </View>
-  );
+    const showPrompt = () => {
+        Alert.prompt('Enter a number', `Time: ${formattedTime}`, (inputValue) => {
+            const newNumber = parseInt(inputValue);
+            console.log(newNumber, formattedTime);
+
+            if (!isNaN(newNumber)) {
+                // const time = new Date().toLocaleString();
+                setNumberDictionary({
+                    ...numberDictionary,
+                    [newNumber]: formattedTime,
+                });
+
+            } else {
+                // Show an error message or handle invalid input
+                Alert.alert('Invalid Input', 'Please enter a valid number');
+            }
+        });
+    };
+
+    return (
+        <SafeAreaView>
+            <View style={styles.container}>
+                <Text>{formattedTime}</Text>
+                {/*<Button title="StopWatch" onPress={showPrompt}/>*/}
+                <CarList clockTime={formattedTime}/>
+            </View>
+        </SafeAreaView>
+
+    );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
+    container: {
+        marginVertical: 100,
+        backgroundColor: '#fff',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    input: {
+        height: 40,
+        margin: 12,
+        borderWidth: 1,
+        padding: 10,
+        width: 200,
+    },
 });
